@@ -97,7 +97,7 @@ def play_one(env, model, target_model, random_action_rate, gamma, copy_period):
     done = False
     total_reward = 0
     iters = 0
-    while not done and iters < 2000:
+    while not done and iters < 5000:
         action = model.get_action(state, random_action_rate)
         last_state = state
         state, reward, done, info = env.step(action)
@@ -118,11 +118,11 @@ def play_one(env, model, target_model, random_action_rate, gamma, copy_period):
     return total_reward
 
 def main():
-    env = gym.make('CartPole-v0')
+    env = gym.make('LunarLander-v2')
     gamma = 0.99
     copy_period = 50
 
-    inputs = len(env.observation_space.sample())
+    inputs = 8
     outputs = env.action_space.n
     sizes = [200, 200]
     model = DQN(inputs, outputs, sizes, gamma)
