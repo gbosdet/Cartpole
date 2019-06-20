@@ -118,11 +118,11 @@ def play_one(env, model, target_model, random_action_rate, gamma, copy_period):
     return total_reward
 
 def main():
-    env = gym.make('LunarLander-v2')
+    env = gym.make('CartPole-v0')
     gamma = 0.99
     copy_period = 50
 
-    inputs = 8
+    inputs = 4
     outputs = env.action_space.n
     sizes = [200, 200]
     model = DQN(inputs, outputs, sizes, gamma)
@@ -134,7 +134,7 @@ def main():
     target_model.set_session(session)
 
 
-    N = 500
+    N = 1000
     total_rewards = np.empty(N)
     costs = np.empty(N)
     for n in range(N):

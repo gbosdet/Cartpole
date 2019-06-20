@@ -37,6 +37,8 @@ class DDQN:
         if len(self.experiences) >= self.experience_buffer_size:
             self.experiences.popleft()
         self.experiences.append(step_data)
+        print(len(self.experiences))
+
 
     def save_weights(self, filename):
         pass
@@ -85,10 +87,11 @@ def learn_game():
     rewards = []
     steps_to_finish = []
     for i in range(1000):
+        random_action_rate = 1/np.sqrt(i+1)
         reward, steps = run_episode(env, ddqn, random_action_rate)
         rewards.append(reward)
         steps_to_finish.append(steps)
-        random_action_rate -= random_action_decay_rate
+        #random_action_rate -= random_action_decay_rate
         if i % 20 == 0:
             print("Episode:", i, "\tReward:", reward, "\tSteps:", steps)
 
