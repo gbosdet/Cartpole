@@ -391,7 +391,7 @@ def gamma_experiment():
 def learning_rate_experiment():
     sns.set()
     random_action_rate = 0.6
-    for trial in range(1, 3):
+    for trial in range(3, 5):
         random_action_decay_rate = 0.99
         hidden_layer_df = pd.DataFrame()
         steps_hidden_layer_df = pd.DataFrame()
@@ -442,7 +442,7 @@ def learning_rate_experiment():
 def buffer_size_experiment():
     sns.set()
     random_action_rate = 0.6
-    for trial in range(1, 3):
+    for trial in range(3, 5):
         random_action_decay_rate = 0.99
         hidden_layer_df = pd.DataFrame()
         steps_hidden_layer_df = pd.DataFrame()
@@ -476,7 +476,7 @@ def buffer_size_experiment():
         plt.ylabel("Episode Reward")
         plt.xlabel("Episode")
         plt.tight_layout()
-        plt.savefig(("./Figures/Buffer Size Gamma Reward vs Episode " + str(trial)))
+        plt.savefig(("./Figures/Buffer Size Reward vs Episode " + str(trial)))
         plt.close()
 
         steps_hidden_layer_df.plot()
@@ -491,7 +491,58 @@ def buffer_size_experiment():
         steps_hidden_layer_df.to_csv("./Data/Buffer Size Steps " + str(trial) + ".csv")
 
 
+def training_times_before_weight_copy_experiment():
+    sns.set()
+    random_action_rate = 0.6
+    for trial in range(1, 5):
+        random_action_decay_rate = 0.99
+        hidden_layer_df = pd.DataFrame()
+        steps_hidden_layer_df = pd.DataFrame()
+        training_times_before_weight_copys = [50, 100, 1000, 10000]
+        names = ["Training Times Before Weight Copy = 50", "Training Times Before Weight Copy = 100", "Training Times Before Weight Copy = 1000", "Training Times Before Weight Copy = 10000"]
+        for name, training_times_before_weight_copy in zip(names, training_times_before_weight_copys):
+            start = time.time()
+            env = gym.make('LunarLander-v2')
+            # ddqn = DDQN(len(env.observation_space.sample()), env.action_space.n)
+            ddqn = DDQN(9, env.action_space.n, hidden_layer_sizes=[64], gamma=0.99, training_times_per_weight_copy=training_times_before_weight_copy)
+
+            rewards = []
+            steps_to_finish = []
+            for i in range(501):
+                #random_action_rate = 1/np.sqrt(i+1)
+                reward, steps = run_episode(env, ddqn, random_action_rate, (i%20==0))
+                rewards.append(reward)
+                steps_to_finish.append(steps)
+                hidden_layer_df.loc[i, name] = reward
+                steps_hidden_layer_df.loc[i, name] = steps
+                random_action_rate *= random_action_decay_rate
+                if i % 20 == 0:
+                    print("\tEpisode:", i, "\tReward:", reward, "\tSteps:", steps)
+
+            print(name, ":", (time.time()-start))
+
+
+
+        hidden_layer_df.plot()
+        plt.title("Training Times per Copy Reward per Episode")
+        plt.ylabel("Episode Reward")
+        plt.xlabel("Episode")
+        plt.tight_layout()
+        plt.savefig(("./Figures/Training Times per Copy Reward vs Episode " + str(trial)))
+        plt.close()
+
+        steps_hidden_layer_df.plot()
+        plt.title("Training Times per Copy Steps per Episode")
+        plt.ylabel("Steps")
+        plt.xlabel("Episode")
+        plt.tight_layout()
+        plt.savefig("./Figures/Training Times per Copy vs Episode " + str(trial))
+        plt.close()
+
+        hidden_layer_df.to_csv("./Data/Training Times per Copy Experiment " + str(trial) + ".csv")
+        steps_hidden_layer_df.to_csv("./Data/Training Times per Copy Steps " + str(trial) + ".csv")
+
+
 
 if __name__ == "__main__":
-    gamma_experiment()
-    buffer_size_experiment()
+    training_times_before_weight_copy_experiment()
